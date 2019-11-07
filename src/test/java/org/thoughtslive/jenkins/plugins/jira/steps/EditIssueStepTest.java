@@ -2,8 +2,7 @@ package org.thoughtslive.jenkins.plugins.jira.steps;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -77,7 +76,7 @@ public class EditIssueStepTest {
     doNothing().when(printStreamMock).println();
 
     final ResponseDataBuilder<Object> builder = ResponseData.builder();
-    when(jiraServiceMock.updateIssue(anyString(), any()))
+    when(jiraServiceMock.updateIssue(anyString(), any(), anyBoolean()))
         .thenReturn(builder.successful(true).code(200).message("Success").build());
 
     when(contextMock.get(Run.class)).thenReturn(runMock);
@@ -87,7 +86,7 @@ public class EditIssueStepTest {
 
   @Test
   public void testWithEmptyIdOrKeyThrowsAbortException() throws Exception {
-    final EditIssueStep step = new EditIssueStep("", issue);
+    final EditIssueStep step = new EditIssueStep("", issue, true);
     stepExecution = new EditIssueStep.Execution(step, contextMock);
 
     // Execute and assert Test.
@@ -99,14 +98,14 @@ public class EditIssueStepTest {
 
   @Test
   public void testSuccessfulUpdateIssue() throws Exception {
-    final EditIssueStep step = new EditIssueStep("TEST-1", issue);
+    final EditIssueStep step = new EditIssueStep("TEST-1", issue, true);
     stepExecution = new EditIssueStep.Execution(step, contextMock);
 
     // Execute Test.
     stepExecution.run();
 
     // Assert Test
-    verify(jiraServiceMock, times(1)).updateIssue("TEST-1", issue);
+    verify(jiraServiceMock, times(1)).updateIssue("TEST-1", issue, true);
     assertThat(step.isFailOnError()).isEqualTo(true);
   }
 }
